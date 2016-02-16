@@ -123,8 +123,7 @@ public class MainActivity extends Activity {
 				String imgURL = image.attr("src");
 
 				Element captionParent = e.select("p").first();
-				Element captionNode = captionParent.firstElementSibling();
-				String caption = captionNode.text();
+				String caption = captionParent.text();
 
 				ItemData data = new ItemData(caption, imgURL);
 				itemsData.add(data);
