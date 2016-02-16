@@ -35,10 +35,9 @@ public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.Vi
 		// - get data from your itemsData at this position
 		// - replace the contents of the view with that itemsData
 
-		
 		// http://square.github.io/picasso/
 		viewHolder.txtViewTitle.setText(itemsData.get(position).getTitle());
-		viewHolder.imgViewIcon.setImageResource(itemsData.get(position).getImageUrl());
+		//viewHolder.imgViewIcon.setImageResource(itemsData.get(position).getImageUrl());
 
 	}
 

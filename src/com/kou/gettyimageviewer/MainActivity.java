@@ -1,12 +1,8 @@
 package com.kou.gettyimageviewer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -15,7 +11,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
+import org.jsoup.select.NodeVisitor;
 
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -23,6 +22,7 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 public class MainActivity extends Activity {
 
@@ -57,10 +57,7 @@ public class MainActivity extends Activity {
 		HttpGet httpget = new HttpGet(url); // Set the action you want to do
 		HttpResponse response = httpclient.execute(httpget); // Executeit
 
-		// http://stackoverflow.com/questions/12948284/how-to-extract-specific-div-tags-from-get-response
 		String content = EntityUtils.toString(response.getEntity());
-		Document doc = Jsoup.parse(content);
-		Elements ele = doc.select("div.gallery-wrap");
 
 		// HttpEntity entity = response.getEntity();
 		// InputStream is = entity.getContent(); // Create an InputStream with the response
@@ -73,7 +70,8 @@ public class MainActivity extends Activity {
 		// String resString = sb.toString();
 		//
 		// is.close();
-		return "abc";
+
+		return content;
 	}
 
 	public class DownloadHttpAsyncTask extends AsyncTask<String, Void, String> {
@@ -108,13 +106,34 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 
+			Document doc = Jsoup.parse(result);
 			// http://stackoverflow.com/questions/12948284/how-to-extract-specific-div-tags-from-get-response
+			// http://jsoup.org/cookbook/extracting-data/dom-navigation
+			Elements elements = doc.select("div.gallery-item-group");
 
 			ArrayList<ItemData> itemsData = new ArrayList<ItemData>();
-			itemsData.add(new ItemData("Help", R.drawable.ic_launcher));
-			itemsData.add(new ItemData("Favorite", R.drawable.ic_launcher));
-			itemsData.add(new ItemData("Like", R.drawable.ic_launcher));
-			itemsData.add(new ItemData("Rating", R.drawable.ic_launcher));
+
+			for (Element e : elements) {
+				Log.d("TAG", "Element: " + e.nodeName());
+
+				// http://stackoverflow.com/questions/4875064/jsoup-how-to-get-an-images-absolute-url
+				// http://stackoverflow.com/questions/10457415/extract-image-src-using-jsoup
+				// http://stackoverflow.com/questions/28669496/jsoup-extracting-innertext-from-anchor-tag
+				Element image = e.select("img").first();
+				String imgURL = image.attr("src");
+
+				Element captionParent = e.select("p").first();
+				Element captionNode = captionParent.firstElementSibling();
+				String caption = captionNode.text();
+
+				ItemData data = new ItemData(caption, imgURL);
+				itemsData.add(data);
+			}
+
+			// itemsData.add(new ItemData("Help", R.drawable.ic_launcher));
+			// itemsData.add(new ItemData("Favorite", R.drawable.ic_launcher));
+			// itemsData.add(new ItemData("Like", R.drawable.ic_launcher));
+			// itemsData.add(new ItemData("Rating", R.drawable.ic_launcher));
 
 			adapter = new GettyImageAdapter(itemsData);
 			recyclerView.setAdapter(adapter);

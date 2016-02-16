@@ -1,11 +1,13 @@
 package com.kou.gettyimageviewer;
 
+// Example: http://www.gettyimagesgallery.com/Images/Thumbnails/1343/134342.jpg
+
 public class ItemData {
-
+	private final String mainURL = "http://www.gettyimagesgallery.com";
 	private String title;
-	private int imageUrl;
+	private String imageUrl;
 
-	public ItemData(String title, int imageUrl) {
+	public ItemData(String title, String imageUrl) {
 
 		this.title = title;
 		this.imageUrl = imageUrl;
@@ -19,11 +21,11 @@ public class ItemData {
 		this.title = title;
 	}
 
-	public int getImageUrl() {
-		return imageUrl;
+	public String getImageUrl() {
+		return mainURL + imageUrl;
 	}
 
-	public void setImageUrl(int imageUrl) {
+	public void setImageUrl(String imageUrl) {
 		this.imageUrl = imageUrl;
 	}
 
