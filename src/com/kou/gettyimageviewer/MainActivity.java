@@ -12,9 +12,7 @@ import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
-import org.jsoup.select.NodeVisitor;
 
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -51,14 +49,19 @@ public class MainActivity extends Activity {
 
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		adapter.clearCache();
+
+	}
+
 	// http://stackoverflow.com/questions/22170470/how-to-get-a-web-page-content-in-android
 	public static String getResponseFromUrl(String url) throws ClientProtocolException, IOException {
 		HttpClient httpclient = new DefaultHttpClient(); // Create HTTP Client
 		HttpGet httpget = new HttpGet(url); // Set the action you want to do
 		HttpResponse response = httpclient.execute(httpget); // Executeit
-
 		String content = EntityUtils.toString(response.getEntity());
-
 		// HttpEntity entity = response.getEntity();
 		// InputStream is = entity.getContent(); // Create an InputStream with the response
 		// BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
@@ -129,12 +132,7 @@ public class MainActivity extends Activity {
 				itemsData.add(data);
 			}
 
-			// itemsData.add(new ItemData("Help", R.drawable.ic_launcher));
-			// itemsData.add(new ItemData("Favorite", R.drawable.ic_launcher));
-			// itemsData.add(new ItemData("Like", R.drawable.ic_launcher));
-			// itemsData.add(new ItemData("Rating", R.drawable.ic_launcher));
-
-			adapter = new GettyImageAdapter(itemsData);
+			adapter = new GettyImageAdapter(MainActivity.this, itemsData);
 			recyclerView.setAdapter(adapter);
 
 		}
