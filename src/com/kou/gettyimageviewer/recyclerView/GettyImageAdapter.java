@@ -1,10 +1,12 @@
 package com.kou.gettyimageviewer.recyclerView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,18 +18,19 @@ import com.kou.gettyimageviewer.model.ItemData;
 import com.squareup.picasso.Picasso;
 
 public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.ViewHolder> {
+
+	private final String TAG = GettyImageAdapter.class.getSimpleName();
+
 	private ArrayList<ItemData> itemsData;
 	private Picasso picasso;
-	private com.squareup.picasso.LruCache picassoLruCache;
+	private Context context;
+	HashSet<Integer> imageReqSet;
 
-	public GettyImageAdapter(Context context, ArrayList<ItemData> itemsData) {
+	public GettyImageAdapter(Context context, Picasso picasso, HashSet<Integer> imageReqSet, ArrayList<ItemData> itemsData) {
+		this.context = context;
+		this.picasso = picasso;
+		this.imageReqSet = imageReqSet;
 		this.itemsData = itemsData;
-
-		picassoLruCache = new com.squareup.picasso.LruCache(context);
-
-		picasso = new Picasso.Builder(context) //
-				.memoryCache(picassoLruCache) //
-				.build();
 
 	}
 
@@ -44,7 +47,7 @@ public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.Vi
 
 	// Replace the contents of a view (invoked by the layout manager)
 	@Override
-	public void onBindViewHolder(ViewHolder viewHolder, int position) {
+	public void onBindViewHolder(ViewHolder viewHolder, final int position) {
 
 		// - get data from your itemsData at this position
 		// - replace the contents of the view with that itemsData
@@ -63,18 +66,17 @@ public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.Vi
 				.error(R.drawable.ic_launcher)//
 				.tag(position)//
 				.fit().centerInside()//
-				.into(viewHolder.imgViewIcon);
+				.into(viewHolder.imgViewIcon, new com.squareup.picasso.Callback() {
+					@Override
+					public void onSuccess() {
+						imageReqSet.remove(position);
+					}
 
-		// picasso.cancelRequest(target);Request(viewHolder.imgViewIcon);
-		// @Override
-		// public void onScrollStateChanged(AbsListView view, int scrollState) {
-		// final Picasso picasso = Picasso.with(context);
-		// if (scrollState == SCROLL_STATE_IDLE || scrollState == SCROLL_STATE_TOUCH_SCROLL) {
-		// picasso.resumeTag(context);
-		// } else {
-		// picasso.pauseTag(context);
-		// }
-		// }
+					@Override
+					public void onError() {
+						Log.e(TAG, "onError image loading: " + position);
+					}
+				});
 
 	}
 
@@ -97,7 +99,4 @@ public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.Vi
 		return itemsData.size();
 	}
 
-	public void clearCache() {
-		picassoLruCache.clear();
-	}
 }

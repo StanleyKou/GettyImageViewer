@@ -2,6 +2,7 @@ package com.kou.gettyimageviewer.recyclerView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 
@@ -25,6 +26,7 @@ import android.util.Log;
 
 import com.kou.gettyimageviewer.R;
 import com.kou.gettyimageviewer.model.ItemData;
+import com.squareup.picasso.Picasso;
 
 public class RecyclerViewMainActivity extends Activity {
 
@@ -32,6 +34,11 @@ public class RecyclerViewMainActivity extends Activity {
 	private GettyImageAdapter adapter;
 	private LinearLayoutManager linearLayoutManager;
 	private RecyclerViewPositionHelper recyclerViewPositionHelper;
+
+	private Picasso picasso;
+	private HashSet<Integer> imageReqSet = new HashSet<Integer>();
+	private com.squareup.picasso.LruCache picassoLruCache;
+	private RecyclerView.OnScrollListener onScrollListener;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +50,50 @@ public class RecyclerViewMainActivity extends Activity {
 		linearLayoutManager = new LinearLayoutManager(this);
 		recyclerView.setLayoutManager(linearLayoutManager);
 		recyclerView.setItemAnimator(new SlideInLeftAnimator());
+
+		onScrollListener = new RecyclerView.OnScrollListener() {
+
+			@Override
+			public void onScrollStateChanged(RecyclerView recyclerview, int scrollState) {
+
+				if (scrollState == RecyclerView.SCROLL_STATE_IDLE) {
+					Log.d("TAG", "onScrollStateChanged  SCROLL_STATE_IDLE");
+					for (Integer i : imageReqSet) {
+						picasso.resumeTag(i);
+					}
+
+				} else {
+					for (Integer i : imageReqSet) {
+						picasso.pauseTag(i);
+					}
+				}
+			}
+
+			@Override
+			public void onScrolled(RecyclerView recyclerview, int dx, int dy) {
+
+				int first = recyclerViewPositionHelper.findFirstVisibleItemPosition();
+				int last = recyclerViewPositionHelper.findLastVisibleItemPosition();
+
+				Log.d("TAG", "onScrolled  " + dx + " " + dy + " First: " + first + " Last: " + last);
+
+				for (Integer i : imageReqSet) {
+					if (first > i || i < last) {
+						picasso.cancelTag(i);
+					}
+				}
+			}
+		};
+
+		recyclerView.addOnScrollListener(onScrollListener);
+
 		recyclerViewPositionHelper = RecyclerViewPositionHelper.createHelper(recyclerView);
 
-		recyclerViewPositionHelper.findFirstVisibleItemPosition();
+		picassoLruCache = new com.squareup.picasso.LruCache(this);
+
+		picasso = new Picasso.Builder(this) //
+				.memoryCache(picassoLruCache) //
+				.build();
 
 	}
 
@@ -61,10 +109,11 @@ public class RecyclerViewMainActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		adapter.clearCache();
+		picassoLruCache.clear();
 
 	}
 
+	// TODO: 여기에서 하나씩 아이템을 추가하는 로직 구성할 필요가 있음.
 	// http://stackoverflow.com/questions/22170470/how-to-get-a-web-page-content-in-android
 	public static String getResponseFromUrl(String url) throws ClientProtocolException, IOException {
 		HttpClient httpclient = new DefaultHttpClient(); // Create HTTP Client
@@ -141,7 +190,7 @@ public class RecyclerViewMainActivity extends Activity {
 				itemsData.add(data);
 			}
 
-			adapter = new GettyImageAdapter(RecyclerViewMainActivity.this, itemsData);
+			adapter = new GettyImageAdapter(RecyclerViewMainActivity.this, picasso, imageReqSet, itemsData);
 			recyclerView.setAdapter(adapter);
 
 		}
