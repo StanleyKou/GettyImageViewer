@@ -5,8 +5,8 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="18"
-        android:targetSdkVersion="18" />
+        android:minSdkVersion="19"
+        android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -24,6 +24,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".recyclerView.RecyclerViewMainActivity" />
+        <activity android:name=".listView.ListViewMainActivity" />
     </application>
 
 </manifest>

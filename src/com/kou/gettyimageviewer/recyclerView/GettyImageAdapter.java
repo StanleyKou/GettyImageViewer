@@ -1,4 +1,4 @@
-package com.kou.gettyimageviewer;
+package com.kou.gettyimageviewer.recyclerView;
 
 import java.util.ArrayList;
 
@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.kou.gettyimageviewer.R;
+import com.kou.gettyimageviewer.model.ItemData;
 import com.squareup.picasso.Picasso;
 
 public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.ViewHolder> {
@@ -49,15 +51,30 @@ public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.Vi
 
 		// http://square.github.io/picasso/
 		ItemData data = itemsData.get(position);
-
 		viewHolder.txtViewTitle.setText(data.getTitle());
+
+		if (viewHolder.imgViewIcon.getTop() < 0) {
+
+		}
 
 		// http://stackoverflow.com/questions/28426468/picasso-cannot-load-images-for-some-url-no-special-characters
 		picasso.load(data.getImageUrl())//
 				.config(Bitmap.Config.RGB_565)//
 				.error(R.drawable.ic_launcher)//
+				.tag(position)//
 				.fit().centerInside()//
 				.into(viewHolder.imgViewIcon);
+
+		// picasso.cancelRequest(target);Request(viewHolder.imgViewIcon);
+		// @Override
+		// public void onScrollStateChanged(AbsListView view, int scrollState) {
+		// final Picasso picasso = Picasso.with(context);
+		// if (scrollState == SCROLL_STATE_IDLE || scrollState == SCROLL_STATE_TOUCH_SCROLL) {
+		// picasso.resumeTag(context);
+		// } else {
+		// picasso.pauseTag(context);
+		// }
+		// }
 
 	}
 

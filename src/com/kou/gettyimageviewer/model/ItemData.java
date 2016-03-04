@@ -1,4 +1,4 @@
-package com.kou.gettyimageviewer;
+package com.kou.gettyimageviewer.model;
 
 // Example: http://www.gettyimagesgallery.com/Images/Thumbnails/1343/134342.jpg
 
