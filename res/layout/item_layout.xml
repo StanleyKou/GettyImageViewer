@@ -14,8 +14,8 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="1dp"
-        android:contentDescription="icon"
-        android:src="@drawable/ic_launcher" />
+        android:background="@drawable/placeholder"
+        android:contentDescription="icon" />
 
     <!-- title -->
 

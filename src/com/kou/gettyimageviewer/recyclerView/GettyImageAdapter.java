@@ -60,6 +60,8 @@ public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.Vi
 
 		}
 
+		// For listview: picasso.cancelRequest(viewHolder.imgViewIcon);
+
 		// http://stackoverflow.com/questions/28426468/picasso-cannot-load-images-for-some-url-no-special-characters
 		picasso.load(data.getImageUrl())//
 				.config(Bitmap.Config.RGB_565)//

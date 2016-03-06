@@ -1,4 +1,4 @@
-package com.kou.gettyimageviewer.recyclerView;
+package com.kou.gettyimageviewer.listView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,77 +23,24 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.ListView;
 
 import com.kou.gettyimageviewer.R;
 import com.kou.gettyimageviewer.model.ItemData;
 import com.squareup.picasso.Picasso;
 
-public class RecyclerViewMainActivity extends Activity {
+public class ListViewMainActivity extends Activity {
 
-	private RecyclerView recyclerView;
-	private GettyImageAdapter adapter;
-	private LinearLayoutManager linearLayoutManager;
-	private RecyclerViewPositionHelper recyclerViewPositionHelper;
+	private ListView listView;
+	private CustomListAdapter adapter;
 
-	private Picasso picasso;
 	private HashSet<Integer> imageReqSet = new HashSet<Integer>();
-	private com.squareup.picasso.LruCache picassoLruCache;
-	private RecyclerView.OnScrollListener onScrollListener;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_recyclerview_main);
-
-		// http://stackoverflow.com/questions/24449344/using-android-support-v7-widget-cardview-in-my-project-eclipse
-		recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-		linearLayoutManager = new LinearLayoutManager(this);
-		recyclerView.setLayoutManager(linearLayoutManager);
-		recyclerView.setItemAnimator(new SlideInLeftAnimator());
-
-		onScrollListener = new RecyclerView.OnScrollListener() {
-
-			@Override
-			public void onScrollStateChanged(RecyclerView recyclerview, int scrollState) {
-
-				// if (scrollState == RecyclerView.SCROLL_STATE_IDLE) {
-				// Log.d("TAG", "onScrollStateChanged  SCROLL_STATE_IDLE");
-				// for (Integer i : imageReqSet) {
-				// picasso.resumeTag(i);
-				// }
-				//
-				// } else {
-				// for (Integer i : imageReqSet) {
-				// picasso.pauseTag(i);
-				// }
-				// }
-			}
-
-			@Override
-			public void onScrolled(RecyclerView recyclerview, int dx, int dy) {
-
-				int first = recyclerViewPositionHelper.findFirstVisibleItemPosition();
-				int last = recyclerViewPositionHelper.findLastVisibleItemPosition();
-
-				Log.d("TAG", "onScrolled  " + dx + " " + dy + " First: " + first + " Last: " + last);
-
-				for (Integer i : imageReqSet) {
-					if (first > i || i < last) {
-						picasso.cancelTag(i);
-					}
-				}
-			}
-		};
-
-		recyclerView.addOnScrollListener(onScrollListener);
-
-		recyclerViewPositionHelper = RecyclerViewPositionHelper.createHelper(recyclerView);
-
-		picassoLruCache = new com.squareup.picasso.LruCache(this);
-
-		picasso = new Picasso.Builder(this) //
-				.memoryCache(picassoLruCache) //
-				.build();
+		setContentView(R.layout.activity_listview_main);
+		listView = (ListView) findViewById(R.id.listView);
 
 	}
 
@@ -109,7 +56,6 @@ public class RecyclerViewMainActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		picassoLruCache.clear();
 
 	}
 
@@ -190,16 +136,8 @@ public class RecyclerViewMainActivity extends Activity {
 				itemsData.add(data);
 			}
 
-//			for (ItemData d : itemsData) {
-//				Log.d("DDD", d.getTitle());
-//			}
-//
-//			for (ItemData d : itemsData) {
-//				Log.d("EEE", d.getImageUrl());
-//			}
-
-			adapter = new GettyImageAdapter(RecyclerViewMainActivity.this, picasso, imageReqSet, itemsData);
-			recyclerView.setAdapter(adapter);
+			adapter = new CustomListAdapter(ListViewMainActivity.this, itemsData);
+			listView.setAdapter(adapter);
 
 		}
 
