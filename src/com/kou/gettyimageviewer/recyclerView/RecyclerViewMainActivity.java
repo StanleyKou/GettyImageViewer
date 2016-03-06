@@ -115,22 +115,10 @@ public class RecyclerViewMainActivity extends Activity {
 
 	// Wait all data
 	public static String getResponseFromUrl(String url) throws ClientProtocolException, IOException {
-		HttpClient httpclient = new DefaultHttpClient(); // Create HTTP Client
-		HttpGet httpget = new HttpGet(url); // Set the action you want to do
-		HttpResponse response = httpclient.execute(httpget); // Executeit
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(url);
+		HttpResponse response = httpclient.execute(httpget);
 		String content = EntityUtils.toString(response.getEntity());
-		// HttpEntity entity = response.getEntity();
-		// InputStream is = entity.getContent(); // Create an InputStream with the response
-		// BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
-		// StringBuilder sb = new StringBuilder();
-		// String line = null;
-		// while ((line = reader.readLine()) != null)
-		// sb.append(line);
-		//
-		// String resString = sb.toString();
-		//
-		// is.close();
-
 		return content;
 	}
 
@@ -189,13 +177,13 @@ public class RecyclerViewMainActivity extends Activity {
 				itemsData.add(data);
 			}
 
-//			for (ItemData d : itemsData) {
-//				Log.d("DDD", d.getTitle());
-//			}
-//
-//			for (ItemData d : itemsData) {
-//				Log.d("EEE", d.getImageUrl());
-//			}
+			// for (ItemData d : itemsData) {
+			// Log.d("DDD", d.getTitle());
+			// }
+			//
+			// for (ItemData d : itemsData) {
+			// Log.d("EEE", d.getImageUrl());
+			// }
 
 			adapter = new GettyImageAdapter(RecyclerViewMainActivity.this, picasso, imageReqSet, itemsData);
 			recyclerView.setAdapter(adapter);

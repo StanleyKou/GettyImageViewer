@@ -12,21 +12,28 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.LruCache;
 import android.widget.ImageView;
 
 import com.kou.gettyimageviewer.R;
+import com.kou.gettyimageviewer.listView.CustomListAdapter.IimageDownloadResult;
 
 /**
- * @author Nilanchal
- *         <p/>
- *         Used to download the image, and after download completes, display it to imageView
+ * Originally from Nilanchal <br/>
+ * Bitmap cache added
  */
 class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
 
 	private final WeakReference<ImageView> imageViewReference;
+	private int position = -1;
+	private LruCache<Integer, Bitmap> bitmapCache;
+	private IimageDownloadResult result;
 
-	public ImageDownloaderTask(ImageView imageView) {
+	public ImageDownloaderTask(ImageView imageView, int position, LruCache<Integer, Bitmap> bitmapCache, IimageDownloadResult result) {
 		imageViewReference = new WeakReference<ImageView>(imageView);
+		this.position = position;
+		this.bitmapCache = bitmapCache;
+		this.result = result;
 	}
 
 	@Override
@@ -40,18 +47,27 @@ class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
 			bitmap = null;
 		}
 
+		bitmapCache.put(position, bitmap);
+
 		if (imageViewReference != null) {
 			ImageView imageView = imageViewReference.get();
-			if (imageView != null) {
-				if (bitmap != null) {
-					imageView.setImageBitmap(bitmap);
-				} else {
-					Drawable placeholder = imageView.getContext().getResources().getDrawable(R.drawable.placeholder);
-					imageView.setImageDrawable(placeholder);
-				}
+			if (imageView != null && bitmap != null) {
+				result.onImageDownloadComplete(imageView, position);
 			}
-
 		}
+
+		// // check position
+		// if (imageViewReference != null) {
+		// ImageView imageView = imageViewReference.get();
+		// if (imageView != null) {
+		// if (bitmap != null) {
+		// imageView.setImageBitmap(bitmap);
+		// } else {
+		// Drawable placeholder = imageView.getContext().getResources().getDrawable(R.drawable.placeholder);
+		// imageView.setImageDrawable(placeholder);
+		// }
+		// }
+		// }
 	}
 
 	private Bitmap downloadBitmap(String url) {
