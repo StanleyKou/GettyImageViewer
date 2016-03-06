@@ -5,7 +5,6 @@ import java.util.HashSet;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,12 +16,18 @@ import android.widget.TextView;
 
 import com.kou.gettyimageviewer.R;
 import com.kou.gettyimageviewer.model.ItemData;
+import com.kou.gettyimageviewer.util.LogWrapper;
 
 public class CustomListAdapter extends BaseAdapter {
+	private static final String TAG = CustomListAdapter.class.getSimpleName();
 	private ArrayList<ItemData> listData = new ArrayList<ItemData>();
 	private LayoutInflater layoutInflater;
 	private Context context;
-	private ListView listview;
+	private ListView listview; // for find first and last item position.
+
+	interface IimageDownloadResult {
+		public void onImageDownloadComplete(ImageView imageView, int position);
+	}
 
 	private final int cacheSize = 4 * 1024 * 1024; // 4MiB
 	private LruCache<Integer, Bitmap> bitmapCache = new LruCache<Integer, Bitmap>(cacheSize);
@@ -69,50 +74,46 @@ public class CustomListAdapter extends BaseAdapter {
 
 		ItemData newsItem = listData.get(position);
 		holder.txtViewTitle.setText(newsItem.getTitle() + "");
+		Bitmap bitmap = bitmapCache.get(position);
 
-		if (holder.imgViewIcon != null) {
-			Bitmap bitmap = bitmapCache.get(position);
-			if (bitmap != null) {
-				holder.imgViewIcon.setImageBitmap(bitmap);
-				requestMap.remove(position);
+		if (holder.imgViewIcon != null && bitmap != null) {
+			// Already cached
+			holder.imgViewIcon.setImageBitmap(bitmap);
+			requestMap.remove(position);
+		} else {
+			// Request new one
+			holder.imgViewIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.placeholder));
+
+			if (requestMap.contains(position)) {
+				// Just wait
 			} else {
-				holder.imgViewIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.placeholder));
-
-				if (requestMap.contains(position)) {
-					// Just wait
-				} else {
-					requestMap.add(position);
-					IimageDownloadResult result = new IimageDownloadResult() {
-
-						@Override
-						public void onImageDownloadComplete(ImageView imageView, int position) {
-
-							int firstVisible = CustomListAdapter.this.listview.getFirstVisiblePosition();
-							int lastVisible = CustomListAdapter.this.listview.getLastVisiblePosition();
-							//
-							Log.d("TAG", "Img Result Pos: " + position + " F:" + firstVisible + " L:" + lastVisible);
-
-							if (firstVisible <= position && position <= lastVisible) {
-								Bitmap bitmap = bitmapCache.get(position);
-								if (bitmap != null) {
-									imageView.setImageBitmap(bitmap);
-								}
-							}
-						}
-					};
-
-					Log.d("TAG", "Img Request Pos: " + position);
-					new ImageDownloaderTask(holder.imgViewIcon, position, bitmapCache, result).execute(newsItem.getImageUrl());
-				}
+				LogWrapper.d(TAG, "Img Request Pos: " + position);
+				new ImageDownloaderTask(holder.imgViewIcon, position, bitmapCache, result).execute(newsItem.getImageUrl());
+				requestMap.add(position);
 			}
 		}
 
 		return convertView;
 	}
 
-	interface IimageDownloadResult {
-		public void onImageDownloadComplete(ImageView imageView, int position);
-	}
+	private IimageDownloadResult result = new IimageDownloadResult() {
+
+		@Override
+		public void onImageDownloadComplete(ImageView imageView, int position) {
+
+			int firstVisible = CustomListAdapter.this.listview.getFirstVisiblePosition();
+			int lastVisible = CustomListAdapter.this.listview.getLastVisiblePosition();
+
+			LogWrapper.d(TAG, "Img Result Pos: " + position + " F:" + firstVisible + " L:" + lastVisible);
+
+			if (firstVisible <= position && position <= lastVisible) {
+				Bitmap bitmap = bitmapCache.get(position);
+				if (bitmap != null) {
+					imageView.setImageBitmap(bitmap);
+				}
+			}
+		}
+	};
 
 	static class ViewHolder {
 		TextView txtViewTitle;

@@ -23,9 +23,10 @@ import android.widget.ListView;
 
 import com.kou.gettyimageviewer.R;
 import com.kou.gettyimageviewer.model.ItemData;
+import com.kou.gettyimageviewer.util.LogWrapper;
 
 public class ListViewMainActivity extends Activity {
-	// private final static String TAG = ListViewMainActivity.class.getSimpleName();
+	private static final String TAG = ListViewMainActivity.class.getSimpleName();
 	private ListView listView;
 	private CustomListAdapter adapter;
 
@@ -36,8 +37,7 @@ public class ListViewMainActivity extends Activity {
 		listView = (ListView) findViewById(R.id.listView);
 		adapter = new CustomListAdapter(ListViewMainActivity.this, listView);
 		listView.setAdapter(adapter);
-		
-		
+
 	}
 
 	@Override
@@ -72,11 +72,13 @@ public class ListViewMainActivity extends Activity {
 				}
 			}
 			try {
-				addListData(url);
+				addData(url);
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
+				LogWrapper.e(TAG, "DownloadHttpAsyncTask ClientProtocolException");
 			} catch (IOException e) {
 				e.printStackTrace();
+				LogWrapper.e(TAG, "DownloadHttpAsyncTask IOException");
 			}
 			return null;
 		}
@@ -95,7 +97,7 @@ public class ListViewMainActivity extends Activity {
 	boolean isItemStarted = false;
 
 	// Do not wait all data
-	public void addListData(String url) throws ClientProtocolException, IOException {
+	public void addData(String url) throws ClientProtocolException, IOException {
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpGet httpget = new HttpGet(url);
 		HttpResponse response = httpclient.execute(httpget);
