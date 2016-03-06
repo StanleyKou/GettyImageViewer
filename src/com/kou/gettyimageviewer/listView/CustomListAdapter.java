@@ -14,11 +14,10 @@ import com.kou.gettyimageviewer.R;
 import com.kou.gettyimageviewer.model.ItemData;
 
 public class CustomListAdapter extends BaseAdapter {
-	private ArrayList<ItemData> listData;
+	private ArrayList<ItemData> listData = new ArrayList<ItemData>();
 	private LayoutInflater layoutInflater;
 
-	public CustomListAdapter(Context context, ArrayList<ItemData> listData) {
-		this.listData = listData;
+	public CustomListAdapter(Context context) {
 		layoutInflater = LayoutInflater.from(context);
 	}
 
@@ -37,6 +36,11 @@ public class CustomListAdapter extends BaseAdapter {
 		return position;
 	}
 
+	public void addItem(ItemData data) {
+		listData.add(data);
+		notifyDataSetChanged();
+	}
+
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
 		if (convertView == null) {
@@ -51,7 +55,7 @@ public class CustomListAdapter extends BaseAdapter {
 		}
 
 		ItemData newsItem = listData.get(position);
-		holder.txtViewTitle.setText(newsItem.getTitle());
+		holder.txtViewTitle.setText(newsItem.getTitle() + "");
 
 		if (holder.imgViewIcon != null) {
 			new ImageDownloaderTask(holder.imgViewIcon).execute(newsItem.getImageUrl());

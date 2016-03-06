@@ -113,8 +113,7 @@ public class RecyclerViewMainActivity extends Activity {
 
 	}
 
-	// TODO: ���⿡�� �ϳ��� �������� �߰��ϴ� ���� ������ �ʿ䰡 ����.
-	// http://stackoverflow.com/questions/22170470/how-to-get-a-web-page-content-in-android
+	// Wait all data
 	public static String getResponseFromUrl(String url) throws ClientProtocolException, IOException {
 		HttpClient httpclient = new DefaultHttpClient(); // Create HTTP Client
 		HttpGet httpget = new HttpGet(url); // Set the action you want to do

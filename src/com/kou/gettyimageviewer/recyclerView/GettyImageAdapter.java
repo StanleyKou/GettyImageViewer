@@ -54,7 +54,7 @@ public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.Vi
 
 		// http://square.github.io/picasso/
 		ItemData data = itemsData.get(position);
-		viewHolder.txtViewTitle.setText(data.getTitle());
+		viewHolder.txtViewTitle.setText(data.getTitle() + "");
 
 		if (viewHolder.imgViewIcon.getTop() < 0) {
 

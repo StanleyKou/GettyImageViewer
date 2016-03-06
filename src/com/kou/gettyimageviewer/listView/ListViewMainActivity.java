@@ -1,11 +1,12 @@
 package com.kou.gettyimageviewer.listView;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashSet;
 
-import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
-
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -20,16 +21,15 @@ import org.jsoup.select.Elements;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.ListView;
 
 import com.kou.gettyimageviewer.R;
 import com.kou.gettyimageviewer.model.ItemData;
-import com.squareup.picasso.Picasso;
 
 public class ListViewMainActivity extends Activity {
+
+	private final static String TAG = ListViewMainActivity.class.getSimpleName();
 
 	private ListView listView;
 	private CustomListAdapter adapter;
@@ -41,7 +41,8 @@ public class ListViewMainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_listview_main);
 		listView = (ListView) findViewById(R.id.listView);
-
+		adapter = new CustomListAdapter(ListViewMainActivity.this);
+		listView.setAdapter(adapter);
 	}
 
 	@Override
@@ -59,24 +60,79 @@ public class ListViewMainActivity extends Activity {
 
 	}
 
-	// TODO: ���⿡�� �ϳ��� �������� �߰��ϴ� ���� ������ �ʿ䰡 ����.
-	// http://stackoverflow.com/questions/22170470/how-to-get-a-web-page-content-in-android
-	public static String getResponseFromUrl(String url) throws ClientProtocolException, IOException {
-		HttpClient httpclient = new DefaultHttpClient(); // Create HTTP Client
-		HttpGet httpget = new HttpGet(url); // Set the action you want to do
-		HttpResponse response = httpclient.execute(httpget); // Executeit
-		String content = EntityUtils.toString(response.getEntity());
-		// HttpEntity entity = response.getEntity();
-		// InputStream is = entity.getContent(); // Create an InputStream with the response
-		// BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
-		// StringBuilder sb = new StringBuilder();
-		// String line = null;
-		// while ((line = reader.readLine()) != null)
-		// sb.append(line);
-		//
-		// String resString = sb.toString();
-		//
-		// is.close();
+	boolean isItemStarted = false;
+
+	// 	Do not wait all data
+	public String getResponseFromUrl(String url) throws ClientProtocolException, IOException {
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(url);
+		HttpResponse response = httpclient.execute(httpget);
+
+		// String content = EntityUtils.toString(response.getEntity()); // first try: download all
+
+		HttpEntity entity = response.getEntity();
+		InputStream is = entity.getContent(); // Create an InputStream with the response
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
+		StringBuilder sb = new StringBuilder();
+		String line = null;
+
+		StringBuilder sbItem = null;
+
+		while ((line = reader.readLine()) != null) {
+			// sb.append(line);
+			Log.d(TAG, line);
+
+			if (line.contains("<!-- REPEATER ENDS -->")) {
+				isItemStarted = false; // set flag, and quit
+
+				// <div class="gallery-item-group exitemrepeater">
+				// <a href="/Picture-Library/Image.aspx?id=2263"><img src="/Images/Thumbnails/1336/133610.jpg" class="picture"/></a>
+				// <div class="gallery-item-caption">
+				// <p><a href="/Picture-Library/Image.aspx?id=2263">Bacall And Bogart</a></p>
+				// </div>
+				// </div>
+
+				Document doc = Jsoup.parse(sbItem.toString());
+				Elements elements = doc.select("div.gallery-item-group");
+
+				// ArrayList<ItemData> itemsData = new ArrayList<ItemData>();
+
+				for (Element e : elements) {
+					// Log.d(TAG, "Element: " + e.nodeName());
+					Element image = e.select("img").first();
+					String imgURL = image.attr("src");
+
+					Element captionParent = e.select("p").first();
+					String caption = captionParent.text();
+
+					final ItemData data = new ItemData(caption, imgURL);
+					// itemsData.add(data);
+
+					runOnUiThread(new Runnable() {
+
+						@Override
+						public void run() {
+							adapter.addItem(data);
+						}
+					});
+				}
+				continue;
+			}
+
+			if (line.contains("<!-- REPEATER -->")) {
+				isItemStarted = true; // set flag, and quit
+				sbItem = new StringBuilder();
+				continue;
+			}
+
+			if (isItemStarted == true) {
+				sbItem.append(line);
+			}
+		}
+
+		String content = sb.toString();
+
+		is.close();
 
 		return content;
 	}
@@ -113,32 +169,30 @@ public class ListViewMainActivity extends Activity {
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 
-			Document doc = Jsoup.parse(result);
-			// http://stackoverflow.com/questions/12948284/how-to-extract-specific-div-tags-from-get-response
-			// http://jsoup.org/cookbook/extracting-data/dom-navigation
-			Elements elements = doc.select("div.gallery-item-group");
-
-			ArrayList<ItemData> itemsData = new ArrayList<ItemData>();
-
-			for (Element e : elements) {
-				Log.d("TAG", "Element: " + e.nodeName());
-
-				// http://stackoverflow.com/questions/4875064/jsoup-how-to-get-an-images-absolute-url
-				// http://stackoverflow.com/questions/10457415/extract-image-src-using-jsoup
-				// http://stackoverflow.com/questions/28669496/jsoup-extracting-innertext-from-anchor-tag
-				Element image = e.select("img").first();
-				String imgURL = image.attr("src");
-
-				Element captionParent = e.select("p").first();
-				String caption = captionParent.text();
-
-				ItemData data = new ItemData(caption, imgURL);
-				itemsData.add(data);
-			}
-
-			adapter = new CustomListAdapter(ListViewMainActivity.this, itemsData);
-			listView.setAdapter(adapter);
-
+//			Document doc = Jsoup.parse(result);
+//			Elements elements = doc.select("div.gallery-item-group");
+//
+//			// ArrayList<ItemData> itemsData = new ArrayList<ItemData>();
+//
+//			for (Element e : elements) {
+//				// Log.d(TAG, "Element: " + e.nodeName());
+//				Element image = e.select("img").first();
+//				String imgURL = image.attr("src");
+//
+//				Element captionParent = e.select("p").first();
+//				String caption = captionParent.text();
+//
+//				final ItemData data = new ItemData(caption, imgURL);
+//				// itemsData.add(data);
+//
+//				runOnUiThread(new Runnable() {
+//
+//					@Override
+//					public void run() {
+//						adapter.addItem(data);
+//					}
+//				});
+//			}
 		}
 
 		@Override

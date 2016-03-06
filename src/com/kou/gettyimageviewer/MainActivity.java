@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.kou.gettyimageviewer.listView.ListViewMainActivity;
 import com.kou.gettyimageviewer.recyclerView.RecyclerViewMainActivity;
 
 public class MainActivity extends Activity {
@@ -21,7 +22,7 @@ public class MainActivity extends Activity {
 	}
 
 	public void startListView(View view) {
-		Intent intent = new Intent(this, RecyclerViewMainActivity.class);
+		Intent intent = new Intent(this, ListViewMainActivity.class);
 		startActivity(intent);
 	}
 
