@@ -45,7 +45,7 @@ public class ListViewMainActivity extends Activity {
 		super.onResume();
 
 		DownloadHttpAsyncTask task = new DownloadHttpAsyncTask();
-		task.execute("http://www.gettyimagesgallery.com/collections/archive/slim-aarons.aspx");
+		task.execute("http://www.gettyimagesgallery.com/collections/archive/baron.aspx");
 
 	}
 

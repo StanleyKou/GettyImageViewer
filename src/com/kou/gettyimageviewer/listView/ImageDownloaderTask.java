@@ -55,19 +55,6 @@ class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
 				result.onImageDownloadComplete(imageView, position);
 			}
 		}
-
-		// // check position
-		// if (imageViewReference != null) {
-		// ImageView imageView = imageViewReference.get();
-		// if (imageView != null) {
-		// if (bitmap != null) {
-		// imageView.setImageBitmap(bitmap);
-		// } else {
-		// Drawable placeholder = imageView.getContext().getResources().getDrawable(R.drawable.placeholder);
-		// imageView.setImageDrawable(placeholder);
-		// }
-		// }
-		// }
 	}
 
 	private Bitmap downloadBitmap(String url) {
