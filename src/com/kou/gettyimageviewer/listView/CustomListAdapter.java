@@ -88,6 +88,7 @@ public class CustomListAdapter extends BaseAdapter {
 				// Just wait
 			} else {
 				LogWrapper.d(TAG, "Img Request Pos: " + position);
+				holder.imgViewIcon.setTag(position);
 				new ImageDownloaderTask(holder.imgViewIcon, position, bitmapCache, result).execute(newsItem.getImageUrl());
 				requestMap.add(position);
 			}
@@ -109,7 +110,10 @@ public class CustomListAdapter extends BaseAdapter {
 			if (firstVisible <= position && position <= lastVisible) {
 				Bitmap bitmap = bitmapCache.get(position);
 				if (bitmap != null) {
-					imageView.setImageBitmap(bitmap);
+					int imageViewPosition = (int) imageView.getTag(); // View can be recycled, So we must check before use it.
+					if (imageViewPosition == position) {
+						imageView.setImageBitmap(bitmap);
+					}
 				}
 			}
 		}
