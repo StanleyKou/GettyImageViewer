@@ -45,8 +45,8 @@ public class ListViewMainActivity extends Activity {
 		super.onResume();
 
 		DownloadHttpAsyncTask task = new DownloadHttpAsyncTask();
-		task.execute("http://www.gettyimagesgallery.com/collections/archive/baron.aspx");
-
+		// task.execute("http://www.gettyimagesgallery.com/collections/archive/baron.aspx");
+		task.execute("http://www.gettyimagesgallery.com/collections/archive/slim-aarons.aspx");
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class ListViewMainActivity extends Activity {
 		StringBuilder sbItem = null;
 
 		while ((line = reader.readLine()) != null) {
-			// Log.d(TAG, line);
+			// LogWrapper.d(TAG, line);
 
 			if (line.contains("<!-- REPEATER ENDS -->")) {
 				isItemStarted = false; // set flag, and quit
@@ -121,7 +121,7 @@ public class ListViewMainActivity extends Activity {
 				Elements elements = doc.select("div.gallery-item-group");
 
 				for (Element e : elements) {
-					// Log.d(TAG, "Element: " + e.nodeName());
+					// LogWrapper.d(TAG, "Element: " + e.nodeName());
 					Element image = e.select("img").first();
 					String imgURL = image.attr("src");
 

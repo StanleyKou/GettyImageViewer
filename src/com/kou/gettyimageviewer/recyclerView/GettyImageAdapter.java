@@ -6,7 +6,6 @@ import java.util.HashSet;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,23 +14,28 @@ import android.widget.TextView;
 
 import com.kou.gettyimageviewer.R;
 import com.kou.gettyimageviewer.model.ItemData;
+import com.kou.gettyimageviewer.util.LogWrapper;
 import com.squareup.picasso.Picasso;
 
 public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.ViewHolder> {
 
 	private final String TAG = GettyImageAdapter.class.getSimpleName();
 
-	private ArrayList<ItemData> itemsData;
+	private ArrayList<ItemData> listData = new ArrayList<ItemData>();
 	private Picasso picasso;
 	private Context context;
 	HashSet<Integer> imageReqSet;
 
-	public GettyImageAdapter(Context context, Picasso picasso, HashSet<Integer> imageReqSet, ArrayList<ItemData> itemsData) {
+	public GettyImageAdapter(Context context, Picasso picasso, HashSet<Integer> imageReqSet) {
 		this.context = context;
 		this.picasso = picasso;
 		this.imageReqSet = imageReqSet;
-		this.itemsData = itemsData;
 
+	}
+
+	public void addItem(ItemData data) {
+		listData.add(data);
+		notifyDataSetChanged();
 	}
 
 	// Create new views (invoked by the layout manager)
@@ -53,7 +57,7 @@ public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.Vi
 		// - replace the contents of the view with that itemsData
 
 		// http://square.github.io/picasso/
-		ItemData data = itemsData.get(position);
+		ItemData data = listData.get(position);
 		viewHolder.txtViewTitle.setText(data.getTitle() + "");
 
 		if (viewHolder.imgViewIcon.getTop() < 0) {
@@ -76,7 +80,7 @@ public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.Vi
 
 					@Override
 					public void onError() {
-						Log.e(TAG, "onError image loading: " + position);
+						LogWrapper.e(TAG, "onError image loading: " + position);
 					}
 				});
 
@@ -98,7 +102,7 @@ public class GettyImageAdapter extends RecyclerView.Adapter<GettyImageAdapter.Vi
 	// Return the size of your itemsData (invoked by the layout manager)
 	@Override
 	public int getItemCount() {
-		return itemsData.size();
+		return listData.size();
 	}
 
 }
