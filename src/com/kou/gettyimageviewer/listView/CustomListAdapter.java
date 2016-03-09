@@ -89,7 +89,11 @@ public class CustomListAdapter extends BaseAdapter {
 			} else {
 				LogWrapper.d(TAG, "Img Request Pos: " + position);
 				holder.imgViewIcon.setTag(position);
+<<<<<<< HEAD
 				new ImageDownloaderTask(context, holder.imgViewIcon, position, bitmapCache, result).execute(newsItem.getImageUrl());
+=======
+				new ImageDownloaderTask(holder.imgViewIcon, position, bitmapCache, result).execute(newsItem.getImageUrl());
+>>>>>>> branch 'master' of https://github.com/StanleyKou/GettyImageViewer
 				requestMap.add(position);
 			}
 		}

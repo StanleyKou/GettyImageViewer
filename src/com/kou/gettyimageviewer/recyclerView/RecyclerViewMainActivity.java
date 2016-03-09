@@ -108,7 +108,11 @@ public class RecyclerViewMainActivity extends Activity {
 		super.onResume();
 
 		DownloadHttpAsyncTask task = new DownloadHttpAsyncTask();
+<<<<<<< HEAD
 		// task.execute("http://www.gettyimagesgallery.com/collections/archive/baron.aspx");
+=======
+		//task.execute("http://www.gettyimagesgallery.com/collections/archive/baron.aspx");
+>>>>>>> branch 'master' of https://github.com/StanleyKou/GettyImageViewer
 		task.execute("http://www.gettyimagesgallery.com/collections/archive/slim-aarons.aspx");
 
 	}
